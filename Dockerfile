@@ -1,17 +1,24 @@
 # Use a slim Python image as a base
 FROM python:3.13-slim
 
-RUN pip install uvicorn fastapi sqlalchemy alembic jinja2
+# Install uv
+COPY --from=ghcr.io/astral-sh/uv:latest /uv /bin/uv
 
 # Copy the application code
 WORKDIR /app
+
+# Copy uv files
+COPY pyproject.toml uv.lock ./
+
+# Install dependencies
+RUN uv sync --frozen --no-dev
 
 # Copy source code
 COPY src/ ./src/
 COPY templates/ ./templates/
 
 # Expose the port the app runs on
-EXPOSE 8000
+EXPOSE 8554
 
 # Run the application
-CMD ["uvicorn", "src.main:app", "--host", "0.0.0.0", "--port", "8000", "--log-level", "info", "--access-log"]
+CMD ["uv", "run", "uvicorn", "src.main:app", "--host", "0.0.0.0", "--port", "8554", "--log-level", "info", "--access-log"]

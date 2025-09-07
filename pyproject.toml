@@ -10,10 +10,16 @@ requires-python = ">=3.13"
 
 dependencies = [
     "fastapi",
-    "uvicorn",
+    "uvicorn[standard]",
     "sqlalchemy",
     "alembic",
     "jinja2",
+]
+
+[tool.uv]
+dev-dependencies = [
+    "pytest",
+    "httpx",
 ]
 
 
