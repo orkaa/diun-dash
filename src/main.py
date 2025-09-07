@@ -1,6 +1,6 @@
 from fastapi import FastAPI, Depends, HTTPException, Request, Header
 from sqlalchemy.orm import Session
-from database import SessionLocal, engine, DiunUpdate, Base, get_db
+from .database import SessionLocal, engine, DiunUpdate, Base, get_db
 from fastapi.templating import Jinja2Templates
 from fastapi.responses import HTMLResponse
 import os
@@ -20,7 +20,7 @@ def run_migrations():
     if not os.path.exists(db_directory):
         os.makedirs(db_directory)
 
-    alembic_cfg = Config("alembic.ini")
+    alembic_cfg = Config("src/alembic.ini")
     command.upgrade(alembic_cfg, "head")
 
 # Run migrations on startup  

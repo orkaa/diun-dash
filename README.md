@@ -58,4 +58,3 @@ http://localhost:8554
 2. Tests:
     - Add a few entries from different servers and different images.
 3. Make it runable without docker and convert to uv
-4. Move source code inside src/
