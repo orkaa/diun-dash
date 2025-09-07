@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Diun Dash</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+            background-color: #1a1a1a;
+            color: #e0e0e0;
+            margin: 20px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        th, td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #333333;
+        }
+        th {
+            background-color: #2a2a2a;
+            color: #f0f0f0;
+            font-weight: 600;
+        }
+        tr:nth-child(even) {
+            background-color: #222222;
+        }
+        tr:hover {
+            background-color: #2c2c2c;
+        }
+        a {
+            color: #61dafb;
+            text-decoration: none;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+        button {
+            background-color: #4a4a4a;
+            color: #ffffff;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background-color 0.2s ease;
+        }
+        button:hover {
+            background-color: #5a5a5a;
+        }
+    </style>
+</head>
+<body class="dark-mode">
+    <h1>Diun Dash</h1>
+    <table>
+        <thead>
+            <tr>
+                <th>Hostname</th>
+                <th>Image Name</th>
+                <th>Image Tag</th>
+                <th>Digest</th>
+                <th>Status</th>
+                <th>Provider</th>
+                <th>Hub Link</th>
+                <th>Created At</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for update in updates %}
+            <tr>
+                <td>{{ update.hostname }}</td>
+                <td>{{ update.image_name }}</td>
+                <td>{{ update.image_tag }}</td>
+                <td>{{ update.digest.split(':', 1)[1][:12] if update.digest and ':' in update.digest else '' }}</td>
+                <td>{{ update.status }}</td>
+                <td>{{ update.provider }}</td>
+                <td><a href="{{ update.hub_link }}" target="_blank">{{ update.hub_link }}</a></td>
+                <td>{{ update.created_at }}</td>
+                <td><button onclick="markAsFixed({{ update.id }})">Fixed</button></td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <script>
+        async function markAsFixed(id) {
+            const response = await fetch(`/updates/${id}`, {
+                method: 'DELETE',
+            });
+            if (response.ok) {
+                location.reload();
+            } else {
+                alert('Failed to mark as fixed.');
+            }
+        }
+    </script>
+</body>
+</html>
