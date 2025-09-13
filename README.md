@@ -94,6 +94,7 @@ The project includes convenient scripts for common development tasks:
 *   `./scripts/dev.sh` - Start the development server with auto-reload
 *   `./scripts/test.sh` - Run the test suite with pytest
 *   `./scripts/migrate.sh` - Run database migrations
+*   `./scripts/send-test-notification.sh` - Send test webhook notifications for development
 
 ## Project Structure
 
@@ -113,7 +114,8 @@ diun-dash/
 ├── scripts/               # Development convenience scripts
 │   ├── dev.sh            # Development server
 │   ├── test.sh           # Test runner
-│   └── migrate.sh        # Database migrations
+│   ├── migrate.sh        # Database migrations
+│   └── send-test-notification.sh  # Send test webhooks
 ├── pyproject.toml         # Python project configuration
 ├── uv.lock               # Locked dependencies
 └── Dockerfile            # Container build configuration
@@ -139,6 +141,34 @@ Or run tests directly with pytest:
 ```bash
 uv run pytest -v
 ```
+
+### Testing Webhooks During Development
+
+For development and testing purposes, you can send test webhook notifications using the included script:
+
+```bash
+# Send a random test notification
+./scripts/send-test-notification.sh
+
+# Test specific server and image
+./scripts/send-test-notification.sh --server prod-web --image nginx:alpine
+
+# Test multi-server scenarios
+./scripts/send-test-notification.sh --server server-1 --image postgres:13
+./scripts/send-test-notification.sh --server server-2 --image postgres:13
+
+# Different status and provider
+./scripts/send-test-notification.sh --status updated --provider kubernetes
+
+# See all options
+./scripts/send-test-notification.sh --help
+```
+
+This script generates realistic DIUN webhook payloads and is perfect for:
+- Testing the multi-server functionality
+- Verifying webhook authentication
+- Populating the dashboard with test data
+- Debugging during development
 
 ### Database Migrations
 
