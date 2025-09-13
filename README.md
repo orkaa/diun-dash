@@ -5,11 +5,15 @@ A web-based dashboard to visualize and manage Docker image update notifications 
 ## Features
 
 *   Displays Diun notifications in a user-friendly interface
+*   Multi-server support - track images independently across different servers
 *   Uses SQLite for persistent storage
 *   Easy setup with Docker Compose
 *   Modern Python development with uv package manager
 *   Convenient development scripts for common tasks
 *   FastAPI backend with Alembic database migrations
+*   Comprehensive test suite with 54+ tests
+*   Input validation with Pydantic models
+*   Authentication for webhook endpoints
 
 ## Getting Started
 
@@ -98,8 +102,13 @@ diun-dash/
 ├── src/                    # Source code directory
 │   ├── main.py            # Main FastAPI application
 │   ├── database.py        # Database connection and operations
+│   ├── models.py          # Pydantic models for validation
 │   └── templates/         # Jinja2 templates
 │       └── index.html     # Main dashboard template
+├── tests/                  # Test suite
+│   ├── conftest.py        # Test fixtures and configuration
+│   ├── test_*.py          # Individual test modules
+│   └── ...               # 54+ comprehensive tests
 ├── alembic/               # Database migrations
 ├── scripts/               # Development convenience scripts
 │   ├── dev.sh            # Development server
@@ -114,8 +123,21 @@ diun-dash/
 
 ### Running Tests
 
+The project includes a comprehensive test suite with 54+ tests covering:
+- API input validation (Pydantic models)
+- Database operations and transactions
+- Authentication and authorization
+- Multi-server webhook scenarios
+- Complete HTTP workflow testing
+- Dashboard UI functionality
+
 ```bash
 ./scripts/test.sh
+```
+
+Or run tests directly with pytest:
+```bash
+uv run pytest -v
 ```
 
 ### Database Migrations
@@ -131,6 +153,16 @@ To apply migrations:
 ```bash
 ./scripts/migrate.sh
 ```
+
+### Multi-Server Support
+
+This dashboard supports tracking Docker images across multiple servers independently. Each server can have the same image with different versions/digests:
+
+- `server-1` with `nginx:alpine` (digest: abc123)
+- `server-2` with `nginx:alpine` (digest: def456) 
+- `server-3` with `nginx:latest` (digest: ghi789)
+
+All three will be tracked separately, allowing you to see which servers have which versions of your images.
 
 ### Technology Stack
 
