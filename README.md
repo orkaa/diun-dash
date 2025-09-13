@@ -2,6 +2,8 @@
 
 A web-based dashboard to visualize and manage Docker image update notifications from [Diun](https://crazymax.dev/diun/).
 
+![Diun Dashboard Screenshot](diun-dash-example.png)
+
 ## Features
 
 *   Displays Diun notifications in a user-friendly interface
