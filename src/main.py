@@ -16,7 +16,7 @@ logger.setLevel(logging.INFO)
 # Function to run Alembic migrations
 def run_migrations():
     # Ensure the database directory exists
-    db_file_path = os.path.abspath("diun.db")
+    db_file_path = os.path.abspath("data/diun.db")
     db_directory = os.path.dirname(db_file_path)
     if not os.path.exists(db_directory):
         os.makedirs(db_directory)
