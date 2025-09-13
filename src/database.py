@@ -1,8 +1,7 @@
 from sqlalchemy import create_engine, Column, Integer, String, DateTime
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker, Session
+from sqlalchemy.orm import sessionmaker, Session, declarative_base
 from .models import DiunUpdateData
-import datetime
+from datetime import datetime, UTC
 
 DATABASE_URL = "sqlite:///./data/diun.db"
 
@@ -25,19 +24,22 @@ class DiunUpdate(Base):
     hub_link = Column(String)
     digest = Column(String)
     image_created_at = Column(String)  # When the image was created (from DIUN)
-    created_at = Column(DateTime, default=datetime.datetime.utcnow)  # When webhook was received
+    created_at = Column(DateTime, default=lambda: datetime.now(UTC))  # When webhook was received
 
 def upsert_diun_update(db: Session, update_data: DiunUpdateData) -> DiunUpdate:
     """
     Create or update a DIUN update record, replacing any existing entries 
-    for the same image name.
+    for the same hostname and image name combination.
     
     Args:
         db: Database session
         update_data: DiunUpdateData object with parsed image data
     """
-    # Delete existing entries for the same image_name
-    existing_updates = db.query(DiunUpdate).filter(DiunUpdate.image_name == update_data.image_name).all()
+    # Delete existing entries for the same hostname and image_name combination
+    existing_updates = db.query(DiunUpdate).filter(
+        DiunUpdate.hostname == update_data.hostname,
+        DiunUpdate.image_name == update_data.image_name
+    ).all()
     for update in existing_updates:
         db.delete(update)
 

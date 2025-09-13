@@ -1,14 +1,14 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from typing import Optional
 
 class WebhookData(BaseModel):
     """API input validation model"""
-    hostname: str  # Required - server hostname
-    status: str    # Required - update status (e.g., "new")
-    provider: str  # Required - provider type (e.g., "docker", "file")
-    image: str     # Required - full image with tag
-    digest: str    # Required - SHA256 digest
-    created: str   # Required - ISO 8601 timestamp when image was created
+    hostname: str = Field(min_length=1)  # Required - server hostname
+    status: str = Field(min_length=1)    # Required - update status (e.g., "new")
+    provider: str = Field(min_length=1)  # Required - provider type (e.g., "docker", "file")
+    image: str = Field(min_length=1)     # Required - full image with tag
+    digest: str = Field(min_length=1)    # Required - SHA256 digest
+    created: str = Field(min_length=1)   # Required - ISO 8601 timestamp when image was created
     hub_link: Optional[str] = None  # Optional - link to registry
     # Optional extra fields DIUN might send
     diun_version: Optional[str] = None

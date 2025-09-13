@@ -20,6 +20,10 @@ dependencies = [
 dev-dependencies = [
     "pytest",
     "httpx",
+    "pytest-asyncio",
 ]
 
-
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
+asyncio_mode = "auto"

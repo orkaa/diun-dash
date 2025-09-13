@@ -143,10 +143,6 @@ To apply migrations:
 *   **Containerization**: Docker & Docker Compose
 
 ## TODOs
-- .env not implemented outside docker
-- Right now the dashboards shows only one entry per image, but it should be per image per server.
-- Tests:
-    - Add a few entries from different servers and different images.
 - Pin the version on uv we pull into docker image
 - "Fix all" button to remove all current entries
 - Auth is currently only implemented on the webhook endpoint because Diun uses it by default. Do we also want it on other endpoints?

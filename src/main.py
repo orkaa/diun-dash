@@ -101,4 +101,4 @@ async def delete_update(update_id: int, db: Session = Depends(get_db)):
 @app.get("/", response_class=HTMLResponse)
 async def read_root(request: Request, db: Session = Depends(get_db)):
     updates = db.query(DiunUpdate).order_by(DiunUpdate.created_at.desc()).all()
-    return templates.TemplateResponse("index.html", {"request": request, "updates": updates})
+    return templates.TemplateResponse(request, "index.html", {"updates": updates})

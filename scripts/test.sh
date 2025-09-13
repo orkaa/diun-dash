@@ -1,7 +1,12 @@
 #!/bin/bash
-# Test script
+# Test script for diun-dash
+# Runs the complete test suite
 
 set -e
 
-echo "🧪 Running tests with pytest..."
-uv run pytest
+echo "🧪 Running test suite..."
+
+# Run tests with verbose output
+uv run pytest -v
+
+echo "✅ Test suite completed"
