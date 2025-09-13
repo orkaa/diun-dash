@@ -14,6 +14,13 @@ import logging
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
+def verify_webhook_token(authorization: str = Header(None)):
+    """Verify webhook authorization token"""
+    if authorization != os.environ.get("DIUN_WEBHOOK_TOKEN"):
+        logger.warning("Unauthorized webhook request")
+        raise HTTPException(status_code=401, detail="Unauthorized")
+    return authorization
+
 def parse_image_data(webhook_data: WebhookData) -> DiunUpdateData:
     """Convert webhook data to database update data with parsed image"""
     image_full = webhook_data.image
@@ -27,8 +34,9 @@ def parse_image_data(webhook_data: WebhookData) -> DiunUpdateData:
         provider=webhook_data.provider,
         image_name=image_name,
         image_tag=image_tag,
-        hub_link=webhook_data.hub_link,
         digest=webhook_data.digest,
+        image_created_at=webhook_data.created,
+        hub_link=webhook_data.hub_link,
     )
 
 # Function to run Alembic migrations
@@ -58,14 +66,10 @@ templates = Jinja2Templates(directory="templates")
 @app.post("/webhook")
 async def receive_webhook(
     request: Request,
-    authorization: str = Header(None),
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    token: str = Depends(verify_webhook_token)
 ):
     logger.info("Received webhook request")
-    
-    if authorization != os.environ.get("DIUN_WEBHOOK_TOKEN"):
-        logger.warning("Unauthorized webhook request")
-        raise HTTPException(status_code=401, detail="Unauthorized")
 
     data = await request.json()
     logger.info(f"Processing webhook data for image: {data.get('image', 'unknown')}")

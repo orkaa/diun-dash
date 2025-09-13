@@ -24,7 +24,8 @@ class DiunUpdate(Base):
     image_tag = Column(String)
     hub_link = Column(String)
     digest = Column(String)
-    created_at = Column(DateTime, default=datetime.datetime.utcnow)
+    image_created_at = Column(String)  # When the image was created (from DIUN)
+    created_at = Column(DateTime, default=datetime.datetime.utcnow)  # When webhook was received
 
 def upsert_diun_update(db: Session, update_data: DiunUpdateData) -> DiunUpdate:
     """
@@ -47,8 +48,9 @@ def upsert_diun_update(db: Session, update_data: DiunUpdateData) -> DiunUpdate:
         provider=update_data.provider,
         image_name=update_data.image_name,
         image_tag=update_data.image_tag,
-        hub_link=update_data.hub_link,
         digest=update_data.digest,
+        image_created_at=update_data.image_created_at,
+        hub_link=update_data.hub_link,
     )
     db.add(new_update)
     
