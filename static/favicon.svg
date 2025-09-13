@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32">
+  <!-- Background circle -->
+  <circle cx="16" cy="16" r="16" fill="#2496ED"/>
+  
+  <!-- Docker container icon -->
+  <rect x="8" y="12" width="16" height="10" rx="1" fill="#ffffff" opacity="0.9"/>
+  <rect x="9" y="13" width="14" height="8" rx="0.5" fill="none" stroke="#2496ED" stroke-width="0.5"/>
+  
+  <!-- Stack lines to represent layers -->
+  <rect x="10" y="14" width="12" height="1" fill="#2496ED" opacity="0.6"/>
+  <rect x="10" y="16" width="12" height="1" fill="#2496ED" opacity="0.6"/>
+  <rect x="10" y="18" width="12" height="1" fill="#2496ED" opacity="0.6"/>
+  
+  <!-- Arrow indicating updates -->
+  <path d="M24 8 L26 10 L24 12 L25 10 L20 10 L20 8 Z" fill="#FFD700"/>
+</svg>

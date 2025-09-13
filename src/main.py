@@ -1,4 +1,5 @@
 from fastapi import FastAPI, Depends, HTTPException, Request, Header
+from fastapi.staticfiles import StaticFiles
 from sqlalchemy.orm import Session
 from .database import SessionLocal, engine, DiunUpdate, Base, get_db
 from fastapi.templating import Jinja2Templates
@@ -30,6 +31,9 @@ logger.info("Migrations completed.")
 logger.info("Starting FastAPI application")
 
 app = FastAPI()
+
+# Mount static files
+app.mount("/static", StaticFiles(directory="static"), name="static")
 
 templates = Jinja2Templates(directory="templates")
 

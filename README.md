@@ -146,6 +146,6 @@ To apply migrations:
 - Right now the dashboards shows only one entry per image, but it should be per image per server.
 - Tests:
     - Add a few entries from different servers and different images.
-- Make it runable without docker and convert to uv
 - Pin the version on uv we pull into docker image
 - Add data folder to .gitignore
+- Update my email in pyproject.toml
