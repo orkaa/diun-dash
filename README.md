@@ -147,5 +147,4 @@ To apply migrations:
 - Tests:
     - Add a few entries from different servers and different images.
 - Pin the version on uv we pull into docker image
-- Add data folder to .gitignore
-- Update my email in pyproject.toml
+- "Fix all" button to remove all current entries
