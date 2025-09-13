@@ -1,6 +1,7 @@
 from sqlalchemy import create_engine, Column, Integer, String, DateTime
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import sessionmaker, Session
+from .models import DiunUpdateData
 import datetime
 
 DATABASE_URL = "sqlite:///./data/diun.db"
@@ -24,6 +25,37 @@ class DiunUpdate(Base):
     hub_link = Column(String)
     digest = Column(String)
     created_at = Column(DateTime, default=datetime.datetime.utcnow)
+
+def upsert_diun_update(db: Session, update_data: DiunUpdateData) -> DiunUpdate:
+    """
+    Create or update a DIUN update record, replacing any existing entries 
+    for the same image name.
+    
+    Args:
+        db: Database session
+        update_data: DiunUpdateData object with parsed image data
+    """
+    # Delete existing entries for the same image_name
+    existing_updates = db.query(DiunUpdate).filter(DiunUpdate.image_name == update_data.image_name).all()
+    for update in existing_updates:
+        db.delete(update)
+
+    # Create new update
+    new_update = DiunUpdate(
+        hostname=update_data.hostname,
+        status=update_data.status,
+        provider=update_data.provider,
+        image_name=update_data.image_name,
+        image_tag=update_data.image_tag,
+        hub_link=update_data.hub_link,
+        digest=update_data.digest,
+    )
+    db.add(new_update)
+    
+    # Commit both operations together
+    db.commit()
+    db.refresh(new_update)
+    return new_update
 
 def get_db():
     db = SessionLocal()

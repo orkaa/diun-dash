@@ -1,7 +1,8 @@
 from fastapi import FastAPI, Depends, HTTPException, Request, Header
 from fastapi.staticfiles import StaticFiles
 from sqlalchemy.orm import Session
-from .database import SessionLocal, engine, DiunUpdate, Base, get_db
+from .database import SessionLocal, engine, DiunUpdate, Base, get_db, upsert_diun_update
+from .models import WebhookData, DiunUpdateData
 from fastapi.templating import Jinja2Templates
 from fastapi.responses import HTMLResponse
 import os
@@ -12,6 +13,23 @@ import logging
 # Configure application logging without interfering with uvicorn
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
+
+def parse_image_data(webhook_data: WebhookData) -> DiunUpdateData:
+    """Convert webhook data to database update data with parsed image"""
+    image_full = webhook_data.image
+    image_parts = image_full.rsplit(':', 1)
+    image_name = image_parts[0] if len(image_parts) > 1 else image_full
+    image_tag = image_parts[1] if len(image_parts) > 1 else "latest"
+    
+    return DiunUpdateData(
+        hostname=webhook_data.hostname,
+        status=webhook_data.status,
+        provider=webhook_data.provider,
+        image_name=image_name,
+        image_tag=image_tag,
+        hub_link=webhook_data.hub_link,
+        digest=webhook_data.digest,
+    )
 
 # Function to run Alembic migrations
 def run_migrations():
@@ -51,30 +69,20 @@ async def receive_webhook(
 
     data = await request.json()
     logger.info(f"Processing webhook data for image: {data.get('image', 'unknown')}")
-    image_full = data.get("image", "")
-    image_parts = image_full.rsplit(':', 1)
-    image_name = image_parts[0] if len(image_parts) > 1 else image_full
-    image_tag = image_parts[1] if len(image_parts) > 1 else "latest"
-
-    # Delete existing entries for the same image_name
-    existing_updates = db.query(DiunUpdate).filter(DiunUpdate.image_name == image_name).all()
-    for update in existing_updates:
-        db.delete(update)
-    db.commit()
-
-    new_update = DiunUpdate(
-        hostname=data.get("hostname"),
-        status=data.get("status"),
-        provider=data.get("provider"),
-        image_name=image_name,
-        image_tag=image_tag,
-        hub_link=data.get("hub_link"),
-        digest=data.get("digest"),
-    )
-    db.add(new_update)
-    db.commit()
-    db.refresh(new_update)
-    logger.info(f"Successfully processed update for {image_name}:{image_tag}")
+    
+    # Validate webhook data using Pydantic model
+    try:
+        webhook_data = WebhookData(**data)
+    except ValueError as e:
+        logger.warning(f"Invalid webhook data: {e}")
+        raise HTTPException(status_code=400, detail=f"Invalid webhook data: {e}")
+    
+    # Parse and convert to database format
+    update_data = parse_image_data(webhook_data)
+    
+    # Process the validated and parsed data
+    update = upsert_diun_update(db, update_data)
+    logger.info(f"Successfully processed update for {update.image_name}:{update.image_tag}")
     return {"message": "Webhook received"}
 
 @app.delete("/updates/{update_id}")
