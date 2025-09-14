@@ -252,4 +252,5 @@ All three will be tracked separately, allowing you to see which servers have whi
 *   **Containerization**: Docker & Docker Compose
 
 ## TODOs
+- Github action to build and push the image to docker hub.
 - Auth is currently only implemented on the webhook endpoint because Diun uses it by default. Do we also want it on other endpoints?
