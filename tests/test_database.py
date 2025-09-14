@@ -1,7 +1,7 @@
 import pytest
 from sqlalchemy.orm import Session
 
-from src.database import upsert_diun_update, DiunUpdate
+from src.database import upsert_diun_update, delete_diun_update, DiunUpdate
 from src.models import DiunUpdateData
 
 
@@ -233,5 +233,54 @@ class TestUpsertDiunUpdate:
         
         assert result.hub_link is None
         assert result.hostname == "testserver"
+        
+        db.close()
+
+
+class TestDeleteDiunUpdate:
+    """Test the delete_diun_update database function."""
+    
+    def test_delete_existing_update(self, test_db):
+        """Test deleting an existing update returns True."""
+        TestSessionLocal, test_engine = test_db
+        db = TestSessionLocal()
+        
+        # Insert a test record first
+        update_data = DiunUpdateData(
+            hostname="testserver",
+            status="new",
+            provider="docker",
+            image_name="nginx",
+            image_tag="alpine",
+            digest="sha256:test123",
+            image_created_at="2025-01-01T10:00:00Z"
+        )
+        created_update = upsert_diun_update(db, update_data)
+        update_id = created_update.id
+        
+        # Verify it exists
+        assert db.query(DiunUpdate).filter(DiunUpdate.id == update_id).first() is not None
+        
+        # Delete it
+        result = delete_diun_update(db, update_id)
+        
+        # Should return True for successful deletion
+        assert result is True
+        
+        # Verify it's gone
+        assert db.query(DiunUpdate).filter(DiunUpdate.id == update_id).first() is None
+        
+        db.close()
+
+    def test_delete_nonexistent_update(self, test_db):
+        """Test deleting a non-existent update returns False."""
+        TestSessionLocal, test_engine = test_db
+        db = TestSessionLocal()
+        
+        # Try to delete a non-existent update
+        result = delete_diun_update(db, 999999)
+        
+        # Should return False for non-existent update
+        assert result is False
         
         db.close()

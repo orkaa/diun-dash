@@ -61,6 +61,37 @@ def upsert_diun_update(db: Session, update_data: DiunUpdateData) -> DiunUpdate:
     db.refresh(new_update)
     return new_update
 
+def delete_diun_update(db: Session, update_id: int) -> bool:
+    """
+    Delete a DIUN update record by ID.
+    
+    Args:
+        db: Database session
+        update_id: ID of the update to delete
+        
+    Returns:
+        True if the update was found and deleted, False if not found
+    """
+    update = db.query(DiunUpdate).filter(DiunUpdate.id == update_id).first()
+    if not update:
+        return False
+        
+    db.delete(update)
+    db.commit()
+    return True
+
+def get_all_diun_updates(db: Session) -> list[DiunUpdate]:
+    """
+    Get all DIUN update records ordered by creation time (newest first).
+    
+    Args:
+        db: Database session
+        
+    Returns:
+        List of DiunUpdate records ordered by created_at descending
+    """
+    return db.query(DiunUpdate).order_by(DiunUpdate.created_at.desc()).all()
+
 def get_db():
     db = SessionLocal()
     try:

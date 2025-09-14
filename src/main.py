@@ -1,7 +1,7 @@
 from fastapi import FastAPI, Depends, HTTPException, Request, Header
 from fastapi.staticfiles import StaticFiles
 from sqlalchemy.orm import Session
-from .database import SessionLocal, engine, DiunUpdate, Base, get_db, upsert_diun_update
+from .database import SessionLocal, engine, get_db, upsert_diun_update, delete_diun_update, get_all_diun_updates
 from .models import WebhookData, DiunUpdateData
 from fastapi.templating import Jinja2Templates
 from fastapi.responses import HTMLResponse
@@ -82,7 +82,7 @@ async def receive_webhook(
         raise HTTPException(status_code=400, detail=f"Invalid webhook data: {e}")
     
     # Parse and convert to database format
-    update_data = parse_image_data(webhook_data)
+    update_data: DiunUpdateData = parse_image_data(webhook_data)
     
     # Process the validated and parsed data
     update = upsert_diun_update(db, update_data)
@@ -91,14 +91,12 @@ async def receive_webhook(
 
 @app.delete("/updates/{update_id}")
 async def delete_update(update_id: int, db: Session = Depends(get_db)):
-    update = db.query(DiunUpdate).filter(DiunUpdate.id == update_id).first()
-    if not update:
+    deleted = delete_diun_update(db, update_id)
+    if not deleted:
         raise HTTPException(status_code=404, detail="Update not found")
-    db.delete(update)
-    db.commit()
     return {"message": "Update marked as fixed"}
 
 @app.get("/", response_class=HTMLResponse)
 async def read_root(request: Request, db: Session = Depends(get_db)):
-    updates = db.query(DiunUpdate).order_by(DiunUpdate.created_at.desc()).all()
+    updates = get_all_diun_updates(db)
     return templates.TemplateResponse(request, "index.html", {"updates": updates})
