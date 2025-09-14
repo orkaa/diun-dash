@@ -54,10 +54,28 @@
         button:hover {
             background-color: #5a5a5a;
         }
+        .fix-all-button {
+            background-color: #d73a49;
+            margin-bottom: 20px;
+        }
+        .fix-all-button:hover {
+            background-color: #e85060;
+        }
+        .header-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
     </style>
 </head>
 <body class="dark-mode">
-    <h1>Diun Dash</h1>
+    <div class="header-controls">
+        <h1>Diun Dash</h1>
+        {% if updates %}
+        <button class="fix-all-button" onclick="fixAll()">Fix All</button>
+        {% endif %}
+    </div>
     <table>
         <thead>
             <tr>
@@ -83,7 +101,7 @@
                 <td>{{ update.provider }}</td>
                 <td><a href="{{ update.hub_link }}" target="_blank">{{ update.hub_link }}</a></td>
                 <td>{{ update.created_at }}</td>
-                <td><button onclick="markAsFixed({{ update.id }})">Fixed</button></td>
+                <td><button onclick="markAsFixed({{ update.id }})">Fix</button></td>
             </tr>
             {% endfor %}
         </tbody>
@@ -98,6 +116,21 @@
                 location.reload();
             } else {
                 alert('Failed to mark as fixed.');
+            }
+        }
+
+        async function fixAll() {
+            if (!confirm('Are you sure you want to fix all entries? This will remove all current updates from the dashboard.')) {
+                return;
+            }
+            
+            const response = await fetch('/updates', {
+                method: 'DELETE',
+            });
+            if (response.ok) {
+                location.reload();
+            } else {
+                alert('Failed to fix all entries.');
             }
         }
     </script>

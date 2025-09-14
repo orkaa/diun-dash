@@ -1,7 +1,7 @@
 import pytest
 from sqlalchemy.orm import Session
 
-from src.database import upsert_diun_update, delete_diun_update, DiunUpdate
+from src.database import upsert_diun_update, delete_diun_update, delete_all_diun_updates, DiunUpdate
 from src.models import DiunUpdateData
 
 
@@ -282,5 +282,153 @@ class TestDeleteDiunUpdate:
         
         # Should return False for non-existent update
         assert result is False
+        
+        db.close()
+
+
+class TestDeleteAllDiunUpdates:
+    """Test the delete_all_diun_updates database function."""
+    
+    def test_delete_all_from_empty_database(self, test_db):
+        """Test deleting all updates from an empty database returns 0."""
+        TestSessionLocal, test_engine = test_db
+        db = TestSessionLocal()
+        
+        # Delete all from empty database
+        result = delete_all_diun_updates(db)
+        
+        # Should return 0 for empty database
+        assert result == 0
+        
+        # Verify database is still empty
+        assert db.query(DiunUpdate).count() == 0
+        
+        db.close()
+    
+    def test_delete_all_single_record(self, test_db):
+        """Test deleting all updates when there's one record."""
+        TestSessionLocal, test_engine = test_db
+        db = TestSessionLocal()
+        
+        # Insert a test record
+        update_data = DiunUpdateData(
+            hostname="testserver",
+            status="new",
+            provider="docker",
+            image_name="nginx",
+            image_tag="alpine",
+            digest="sha256:test123",
+            image_created_at="2025-01-01T10:00:00Z"
+        )
+        upsert_diun_update(db, update_data)
+        
+        # Verify record exists
+        assert db.query(DiunUpdate).count() == 1
+        
+        # Delete all
+        result = delete_all_diun_updates(db)
+        
+        # Should return 1 for single record deleted
+        assert result == 1
+        
+        # Verify database is empty
+        assert db.query(DiunUpdate).count() == 0
+        
+        db.close()
+    
+    def test_delete_all_multiple_records(self, test_db):
+        """Test deleting all updates when there are multiple records."""
+        TestSessionLocal, test_engine = test_db
+        db = TestSessionLocal()
+        
+        # Insert multiple test records
+        records_data = [
+            DiunUpdateData(
+                hostname="server1",
+                status="new", 
+                provider="docker",
+                image_name="nginx",
+                image_tag="alpine",
+                digest="sha256:nginx123",
+                image_created_at="2025-01-01T10:00:00Z"
+            ),
+            DiunUpdateData(
+                hostname="server2",
+                status="updated",
+                provider="kubernetes", 
+                image_name="postgres",
+                image_tag="13",
+                digest="sha256:postgres456",
+                image_created_at="2025-01-01T11:00:00Z"
+            ),
+            DiunUpdateData(
+                hostname="server1",
+                status="new",
+                provider="docker",
+                image_name="redis",
+                image_tag="latest", 
+                digest="sha256:redis789",
+                image_created_at="2025-01-01T12:00:00Z"
+            )
+        ]
+        
+        for data in records_data:
+            upsert_diun_update(db, data)
+        
+        # Verify records exist
+        assert db.query(DiunUpdate).count() == 3
+        
+        # Delete all
+        result = delete_all_diun_updates(db)
+        
+        # Should return 3 for three records deleted
+        assert result == 3
+        
+        # Verify database is empty
+        assert db.query(DiunUpdate).count() == 0
+        
+        db.close()
+    
+    def test_delete_all_is_atomic(self, test_db):
+        """Test that delete_all operation is atomic."""
+        TestSessionLocal, test_engine = test_db
+        db = TestSessionLocal()
+        
+        # Insert test records
+        update_data1 = DiunUpdateData(
+            hostname="server1",
+            status="new",
+            provider="docker",
+            image_name="nginx", 
+            image_tag="alpine",
+            digest="sha256:test1",
+            image_created_at="2025-01-01T10:00:00Z"
+        )
+        update_data2 = DiunUpdateData(
+            hostname="server2",
+            status="updated", 
+            provider="file",
+            image_name="postgres",
+            image_tag="13",
+            digest="sha256:test2",
+            image_created_at="2025-01-01T11:00:00Z"
+        )
+        
+        upsert_diun_update(db, update_data1)
+        upsert_diun_update(db, update_data2)
+        
+        # Verify initial state
+        initial_count = db.query(DiunUpdate).count()
+        assert initial_count == 2
+        
+        # Delete all
+        result = delete_all_diun_updates(db)
+        
+        # Should return correct count
+        assert result == 2
+        
+        # Verify final state - all records gone
+        final_count = db.query(DiunUpdate).count()
+        assert final_count == 0
         
         db.close()

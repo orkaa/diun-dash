@@ -80,6 +80,21 @@ def delete_diun_update(db: Session, update_id: int) -> bool:
     db.commit()
     return True
 
+def delete_all_diun_updates(db: Session) -> int:
+    """
+    Delete all DIUN update records.
+    
+    Args:
+        db: Database session
+        
+    Returns:
+        Number of records deleted
+    """
+    count = db.query(DiunUpdate).count()
+    db.query(DiunUpdate).delete()
+    db.commit()
+    return count
+
 def get_all_diun_updates(db: Session) -> list[DiunUpdate]:
     """
     Get all DIUN update records ordered by creation time (newest first).
