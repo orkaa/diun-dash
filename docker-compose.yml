@@ -2,8 +2,8 @@ services:
   web:
     build: .
     ports:
-      - "8554:8000"
+      - "8554:8554"
     volumes:
-      - ./data:/app/data
+      - ${DATA_PATH:-./data}:/app/data
     env_file:
       - .env
