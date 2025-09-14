@@ -4,18 +4,33 @@ A web-based dashboard to visualize and manage Docker image update notifications 
 
 ![Diun Dashboard Screenshot](diun-dash-example.png)
 
+## Why Use Diun Dashboard?
+
+I started using [Diun](https://crazymax.dev/diun/) but didn't like that it just sends notifications to chat clients (Discord, Slack, etc.). Those notifications can get annoying since you don't always have time to fix issues as they appear. I wanted a dashboard I could check periodically and update what's needed on my own schedule.
+
+**This app works best when you pin specific versions of your Docker containers.** If you just use `latest` tags, there are better tools like [Watchtower](https://github.com/containrrr/watchtower) that automatically pull the latest images.
+
+### Intended Workflow
+
+1. **Diun runs periodically** (e.g., daily) and finds outdated images
+2. **Diun sends notifications** to Diun Dashboard via webhook
+3. **You check the dashboard weekly/monthly** to see what needs updating
+4. **You manually update images** on your servers, bumping versions to what the dashboard shows
+5. **You press "Fix"** on each notification to remove it from the dashboard
+
+### How It Behaves
+
+- **One notification per image per server**: Only the newest version notification is displayed. If there's already a notification for an older version, a newer version replaces it.
+- **Independent state**: Diun and Diun Dashboard use separate databases. If you delete a notification from the dashboard and run Diun again, Diun won't re-send that notification because it thinks it already notified you.
+
 ## Features
 
-*   Displays Diun notifications in a user-friendly interface
-*   Multi-server support - track images independently across different servers
-*   Uses SQLite for persistent storage
-*   Easy setup with Docker Compose
-*   Modern Python development with uv package manager
-*   Convenient development scripts for common tasks
-*   FastAPI backend with Alembic database migrations
-*   Comprehensive test suite with 54+ tests
-*   Input validation with Pydantic models
-*   Authentication for webhook endpoints
+*   **Clean Web Interface** - View Docker image updates in a modern, dark-themed dashboard
+*   **Multi-server Support** - Track images independently across different servers
+*   **Individual & Bulk Actions** - Mark single updates as fixed or clear all with "Fix All" button
+*   **Persistent Storage** - SQLite database keeps track of all notifications
+*   **Easy Setup** - One-command Docker Compose deployment
+*   **Secure Webhooks** - Token-based authentication for webhook endpoints
 
 ## Getting Started
 
@@ -42,10 +57,16 @@ Before you begin, ensure you have the following installed:
     cd diun-dash
     ```
 
-2.  Copy the example environment file and configure it if necessary:
+2.  Copy the example environment file and configure your webhook token:
 
     ```bash
     cp .env.example .env
+    ```
+    
+    Edit `.env` and set a secure webhook token:
+    ```bash
+    DIUN_WEBHOOK_TOKEN=your_secret_token_here
+    DATA_PATH=./data
     ```
 
 3.  Start the application using Docker Compose:
@@ -81,7 +102,31 @@ Before you begin, ensure you have the following installed:
     ./scripts/dev.sh
     ```
 
-### Accessing the Dashboard
+## Configuring Diun to Send Notifications
+
+**Important:** For diun-dash to receive notifications about image updates, you need to configure Diun to send webhook notifications to your dashboard.
+
+Add this configuration to your Diun config file:
+
+```yaml
+notif:
+  webhook:
+    endpoint: http://YOUR_DIUN_DASH_HOST:8554/webhook
+    method: POST
+    headers:
+      content-type: application/json
+      authorization: your-secret-token
+    timeout: 10s
+```
+
+**Key Configuration Points:**
+
+- **`endpoint`**: Must match where you run your diun-dash.
+- **`authorization`**: Must exactly match the `DIUN_WEBHOOK_TOKEN` value you set in your `.env` file
+
+For additional information, see the [Diun webhook documentation](https://crazymax.dev/diun/notif/webhook/).
+
+## Accessing the Dashboard
 
 Once the services are up and running, you can access the Diun Dashboard in your web browser at:
 
