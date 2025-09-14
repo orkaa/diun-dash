@@ -207,6 +207,4 @@ All three will be tracked separately, allowing you to see which servers have whi
 *   **Containerization**: Docker & Docker Compose
 
 ## TODOs
-- Pin the version on uv we pull into docker image
-- "Fix all" button to remove all current entries
 - Auth is currently only implemented on the webhook endpoint because Diun uses it by default. Do we also want it on other endpoints?
