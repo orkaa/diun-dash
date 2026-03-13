@@ -1,4 +1,5 @@
-from sqlalchemy import create_engine, Column, Integer, String, DateTime
+from sqlalchemy import create_engine, Column, Integer, String, DateTime, UniqueConstraint
+from sqlalchemy.dialects.sqlite import insert as sqlite_insert
 from sqlalchemy.orm import sessionmaker, Session, declarative_base
 from .models import DiunUpdateData
 from datetime import datetime, UTC
@@ -14,6 +15,9 @@ Base = declarative_base()
 
 class DiunUpdate(Base):
     __tablename__ = "diun_updates"
+    __table_args__ = (
+        UniqueConstraint('hostname', 'image_name', name='uq_hostname_image_name'),
+    )
 
     id = Column(Integer, primary_key=True, index=True)
     hostname = Column(String, index=True)
@@ -28,23 +32,14 @@ class DiunUpdate(Base):
 
 def upsert_diun_update(db: Session, update_data: DiunUpdateData) -> DiunUpdate:
     """
-    Create or update a DIUN update record, replacing any existing entries 
-    for the same hostname and image name combination.
-    
+    Create or update a DIUN update record atomically using SQLite ON CONFLICT DO UPDATE,
+    replacing any existing entry for the same hostname and image name combination.
+
     Args:
         db: Database session
         update_data: DiunUpdateData object with parsed image data
     """
-    # Delete existing entries for the same hostname and image_name combination
-    existing_updates = db.query(DiunUpdate).filter(
-        DiunUpdate.hostname == update_data.hostname,
-        DiunUpdate.image_name == update_data.image_name
-    ).all()
-    for update in existing_updates:
-        db.delete(update)
-
-    # Create new update
-    new_update = DiunUpdate(
+    stmt = sqlite_insert(DiunUpdate).values(
         hostname=update_data.hostname,
         status=update_data.status,
         provider=update_data.provider,
@@ -53,13 +48,26 @@ def upsert_diun_update(db: Session, update_data: DiunUpdateData) -> DiunUpdate:
         digest=update_data.digest,
         image_created_at=update_data.image_created_at,
         hub_link=update_data.hub_link,
+        created_at=datetime.now(UTC),
     )
-    db.add(new_update)
-    
-    # Commit both operations together
+    stmt = stmt.on_conflict_do_update(
+        index_elements=['hostname', 'image_name'],
+        set_=dict(
+            status=stmt.excluded.status,
+            provider=stmt.excluded.provider,
+            image_tag=stmt.excluded.image_tag,
+            digest=stmt.excluded.digest,
+            image_created_at=stmt.excluded.image_created_at,
+            hub_link=stmt.excluded.hub_link,
+            created_at=stmt.excluded.created_at,
+        )
+    )
+    db.execute(stmt)
     db.commit()
-    db.refresh(new_update)
-    return new_update
+    return db.query(DiunUpdate).filter(
+        DiunUpdate.hostname == update_data.hostname,
+        DiunUpdate.image_name == update_data.image_name,
+    ).one()
 
 def delete_diun_update(db: Session, update_id: int) -> bool:
     """

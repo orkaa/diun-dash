@@ -68,10 +68,7 @@ class TestUpsertDiunUpdate:
             image_created_at="2025-01-01T11:00:00Z"
         )
         result2 = upsert_diun_update(db, update_data2)
-        
-        # Should be a new record (different ID)
-        assert result2.id != first_id
-        
+
         # Verify only one nginx record exists for server1 (the new one)
         server1_nginx_records = db.query(DiunUpdate).filter(
             DiunUpdate.hostname == "server1",
