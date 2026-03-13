@@ -117,6 +117,10 @@ async def delete_all_updates(db: Session = Depends(get_db)):
     deleted_count = delete_all_diun_updates(db)
     return {"message": f"All updates fixed ({deleted_count} entries removed)"}
 
+@app.get("/health")
+async def health():
+    return {"status": "ok"}
+
 @app.get("/", response_class=HTMLResponse)
 async def read_root(request: Request, db: Session = Depends(get_db)):
     updates = get_all_diun_updates(db)
