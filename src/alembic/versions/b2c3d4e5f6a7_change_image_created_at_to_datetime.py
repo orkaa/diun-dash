@@ -21,6 +21,10 @@ depends_on: Union[str, Sequence[str], None] = None
 def upgrade() -> None:
     # Convert ISO 8601 strings (e.g. "2020-03-26T12:23:56Z") to the format
     # SQLAlchemy expects for SQLite DateTime ("2020-03-26 12:23:56").
+    # Note: no ALTER COLUMN is needed — SQLite is dynamically typed, so the
+    # string format conversion is sufficient. Using batch_alter_table to change
+    # the declared type would cause SQLite's DATETIME numeric affinity to
+    # coerce the string values to integers during the table copy.
     conn = op.get_bind()
     conn.execute(sa.text("""
         UPDATE diun_updates
@@ -28,20 +32,6 @@ def upgrade() -> None:
         WHERE image_created_at IS NOT NULL
     """))
 
-    with op.batch_alter_table('diun_updates') as batch_op:
-        batch_op.alter_column(
-            'image_created_at',
-            existing_type=sa.String(),
-            type_=sa.DateTime(),
-            existing_nullable=True,
-        )
-
 
 def downgrade() -> None:
-    with op.batch_alter_table('diun_updates') as batch_op:
-        batch_op.alter_column(
-            'image_created_at',
-            existing_type=sa.DateTime(),
-            type_=sa.String(),
-            existing_nullable=True,
-        )
+    pass
