@@ -88,4 +88,5 @@ def webhook_token():
 def set_webhook_token(webhook_token, monkeypatch):
     """Set the webhook token environment variable for tests."""
     monkeypatch.setenv("DIUN_WEBHOOK_TOKEN", webhook_token)
+    monkeypatch.setattr("src.main.DIUN_WEBHOOK_TOKEN", webhook_token)
     return webhook_token

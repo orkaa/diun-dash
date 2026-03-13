@@ -14,9 +14,14 @@ import logging
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
+DIUN_WEBHOOK_TOKEN = os.environ.get("DIUN_WEBHOOK_TOKEN")
+if not DIUN_WEBHOOK_TOKEN:
+    logger.critical("DIUN_WEBHOOK_TOKEN environment variable is not set")
+    raise SystemExit(1)
+
 def verify_webhook_token(authorization: str = Header(None)):
     """Verify webhook authorization token"""
-    if authorization != os.environ.get("DIUN_WEBHOOK_TOKEN"):
+    if authorization != DIUN_WEBHOOK_TOKEN:
         logger.warning("Unauthorized webhook request")
         raise HTTPException(status_code=401, detail="Unauthorized")
     return authorization
