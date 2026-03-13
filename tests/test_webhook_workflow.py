@@ -1,4 +1,5 @@
 import pytest
+from datetime import datetime
 from fastapi.testclient import TestClient
 
 from src.database import DiunUpdate
@@ -88,7 +89,7 @@ class TestWebhookWorkflow:
         assert record.image_name == "docker.io/crazymax/diun"
         assert record.image_tag == "latest" 
         assert record.digest == "sha256:216e3ae7de4ca8b553eb11ef7abda00651e79e537e85c46108284e5e91673e01"
-        assert record.image_created_at == "2020-03-26T12:23:56Z"
+        assert record.image_created_at == datetime(2020, 3, 26, 12, 23, 56)
         assert record.hub_link == "https://hub.docker.com/r/crazymax/diun"
         assert record.created_at is not None  # Auto-generated
         

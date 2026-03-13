@@ -1,4 +1,5 @@
 import pytest
+from datetime import datetime
 from sqlalchemy.orm import Session
 
 from src.database import upsert_diun_update, delete_diun_update, delete_all_diun_updates, DiunUpdate
@@ -33,7 +34,7 @@ class TestUpsertDiunUpdate:
         assert result.image_name == "nginx"
         assert result.image_tag == "alpine"
         assert result.digest == "sha256:abcd1234567890abcd1234567890abcd1234567890abcd1234567890abcd1234"
-        assert result.image_created_at == "2025-01-01T10:00:00Z"
+        assert result.image_created_at == datetime(2025, 1, 1, 10, 0, 0)
         assert result.hub_link == "https://hub.docker.com/_/nginx"
         assert result.created_at is not None  # Auto-generated timestamp
         

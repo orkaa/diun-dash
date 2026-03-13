@@ -1,5 +1,6 @@
 from pydantic import BaseModel, Field
 from typing import Optional
+from datetime import datetime
 
 class WebhookData(BaseModel):
     """API input validation model"""
@@ -24,5 +25,5 @@ class DiunUpdateData(BaseModel):
     image_name: str     # Required - parsed image name
     image_tag: str      # Required - parsed tag (defaults to "latest")
     digest: str         # Required - SHA256 digest
-    image_created_at: str  # Required - when the image was created
+    image_created_at: Optional[datetime] = None  # When the image was created
     hub_link: Optional[str] = None  # Optional - link to registry

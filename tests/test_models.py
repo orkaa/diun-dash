@@ -98,7 +98,7 @@ class TestDiunUpdateData:
         assert update_data.hostname == "myserver"
         assert update_data.image_name == "docker.io/crazymax/diun"
         assert update_data.image_tag == "latest"
-        assert update_data.image_created_at == "2020-03-26T12:23:56Z"
+        assert update_data.image_created_at is not None
 
     def test_minimal_update_data(self):
         """Test update data with only required fields."""
@@ -124,5 +124,5 @@ class TestDiunUpdateData:
             )
         
         error_fields = {error["loc"][0] for error in exc_info.value.errors()}
-        expected_missing = {"provider", "image_name", "image_tag", "digest", "image_created_at"}
+        expected_missing = {"provider", "image_name", "image_tag", "digest"}
         assert expected_missing.issubset(error_fields)

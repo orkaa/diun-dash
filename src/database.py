@@ -27,7 +27,7 @@ class DiunUpdate(Base):
     image_tag = Column(String)
     hub_link = Column(String)
     digest = Column(String)
-    image_created_at = Column(String)  # When the image was created (from DIUN)
+    image_created_at = Column(DateTime)  # When the image was created (from DIUN)
     created_at = Column(DateTime, default=lambda: datetime.now(UTC))  # When webhook was received
 
 def upsert_diun_update(db: Session, update_data: DiunUpdateData) -> DiunUpdate:

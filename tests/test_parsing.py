@@ -1,4 +1,5 @@
 import pytest
+from datetime import datetime
 
 from src.main import parse_image_data
 from src.models import WebhookData, DiunUpdateData
@@ -25,7 +26,7 @@ class TestParseImageData:
         assert result.image_name == "docker.io/nginx"
         assert result.image_tag == "alpine"
         assert result.hostname == "testserver"
-        assert result.image_created_at == "2025-01-01T10:00:00Z"
+        assert result.image_created_at == datetime(2025, 1, 1, 10, 0, 0)
 
     def test_parse_image_without_tag_defaults_to_latest(self):
         """Test that images without explicit tag default to 'latest'."""
@@ -105,7 +106,7 @@ class TestParseImageData:
         assert result.status == webhook_data.status
         assert result.provider == webhook_data.provider
         assert result.digest == webhook_data.digest
-        assert result.image_created_at == webhook_data.created
+        assert result.image_created_at == datetime(2020, 3, 26, 12, 23, 56)
         assert result.hub_link == webhook_data.hub_link
         
         # Image should be parsed correctly

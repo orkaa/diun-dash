@@ -33,7 +33,13 @@ def parse_image_data(webhook_data: WebhookData) -> DiunUpdateData:
     image_parts = image_full.rsplit(':', 1)
     image_name = image_parts[0] if len(image_parts) > 1 else image_full
     image_tag = image_parts[1] if len(image_parts) > 1 else "latest"
-    
+
+    try:
+        from datetime import datetime
+        image_created_at = datetime.fromisoformat(webhook_data.created.replace('Z', '+00:00')).replace(tzinfo=None)
+    except (ValueError, AttributeError):
+        image_created_at = None
+
     return DiunUpdateData(
         hostname=webhook_data.hostname,
         status=webhook_data.status,
@@ -41,7 +47,7 @@ def parse_image_data(webhook_data: WebhookData) -> DiunUpdateData:
         image_name=image_name,
         image_tag=image_tag,
         digest=webhook_data.digest,
-        image_created_at=webhook_data.created,
+        image_created_at=image_created_at,
         hub_link=webhook_data.hub_link,
     )
 
