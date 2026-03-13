@@ -103,17 +103,22 @@ def delete_all_diun_updates(db: Session) -> int:
     db.commit()
     return count
 
-def get_all_diun_updates(db: Session) -> list[DiunUpdate]:
+def get_all_diun_updates(db: Session, skip: int = 0, limit: int | None = None) -> list[DiunUpdate]:
     """
-    Get all DIUN update records ordered by creation time (newest first).
-    
+    Get DIUN update records ordered by creation time (newest first).
+
     Args:
         db: Database session
-        
+        skip: Number of records to skip (offset)
+        limit: Maximum number of records to return (None = no limit)
+
     Returns:
         List of DiunUpdate records ordered by created_at descending
     """
-    return db.query(DiunUpdate).order_by(DiunUpdate.created_at.desc()).all()
+    query = db.query(DiunUpdate).order_by(DiunUpdate.created_at.desc()).offset(skip)
+    if limit is not None:
+        query = query.limit(limit)
+    return query.all()
 
 def get_db():
     db = SessionLocal()
