@@ -56,9 +56,13 @@ def run_migrations():
     alembic_cfg = Config("src/alembic.ini")
     command.upgrade(alembic_cfg, "head")
 
-# Run migrations on startup  
+# Run migrations on startup
 logger.info("Starting application...")
-run_migrations()
+try:
+    run_migrations()
+except Exception as e:
+    logger.critical(f"Migration failed, cannot start: {e}")
+    raise SystemExit(1)
 logger.info("Migrations completed.")
 logger.info("Starting FastAPI application")
 
