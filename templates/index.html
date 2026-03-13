@@ -73,7 +73,7 @@
     <div class="header-controls">
         <h1>Diun Dash</h1>
         {% if updates %}
-        <button class="fix-all-button" onclick="fixAll()">Fix All</button>
+        <button id="fix-all-btn" class="fix-all-button">Fix All</button>
         {% endif %}
     </div>
     <table>
@@ -101,38 +101,12 @@
                 <td>{{ update.provider }}</td>
                 <td><a href="{{ update.hub_link }}" target="_blank">{{ update.hub_link }}</a></td>
                 <td>{{ update.created_at }}</td>
-                <td><button onclick="markAsFixed({{ update.id }})">Fix</button></td>
+                <td><button data-fix-id="{{ update.id }}">Fix</button></td>
             </tr>
             {% endfor %}
         </tbody>
     </table>
 
-    <script>
-        async function markAsFixed(id) {
-            const response = await fetch(`/updates/${id}`, {
-                method: 'DELETE',
-            });
-            if (response.ok) {
-                location.reload();
-            } else {
-                alert('Failed to mark as fixed.');
-            }
-        }
-
-        async function fixAll() {
-            if (!confirm('Are you sure you want to fix all entries? This will remove all current updates from the dashboard.')) {
-                return;
-            }
-            
-            const response = await fetch('/updates', {
-                method: 'DELETE',
-            });
-            if (response.ok) {
-                location.reload();
-            } else {
-                alert('Failed to fix all entries.');
-            }
-        }
-    </script>
+    <script src="/static/dashboard.js"></script>
 </body>
 </html>
