@@ -146,6 +146,22 @@ class TestParseImageData:
         assert result.image_name == "myapp"
         assert result.image_tag == "sha-abc123def"
 
+    def test_parse_image_with_digest_suffix(self):
+        """Test parsing images with digest-pinned reference (e.g. image:tag@sha256:...)."""
+        webhook_data = WebhookData(
+            hostname="hetzner",
+            status="update",
+            provider="docker",
+            image="docker.io/valkey/valkey:9@sha256:fb8d272e529ea567b9bf1302245796f21a2672b8368ca3fcb938ac334e613c8f",
+            digest="sha256:fb8d272e",
+            created="2025-01-01T10:00:00Z"
+        )
+
+        result = parse_image_data(webhook_data)
+
+        assert result.image_name == "docker.io/valkey/valkey"
+        assert result.image_tag == "9"
+
     def test_parse_latest_explicit_tag(self):
         """Test parsing images with explicit 'latest' tag."""
         webhook_data = WebhookData(

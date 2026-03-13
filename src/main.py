@@ -23,7 +23,8 @@ def verify_webhook_token(authorization: str = Header(None)):
 
 def parse_image_data(webhook_data: WebhookData) -> DiunUpdateData:
     """Convert webhook data to database update data with parsed image"""
-    image_full = webhook_data.image
+    # Strip digest suffix (e.g. "image:tag@sha256:abc..." -> "image:tag")
+    image_full = webhook_data.image.split('@')[0]
     image_parts = image_full.rsplit(':', 1)
     image_name = image_parts[0] if len(image_parts) > 1 else image_full
     image_tag = image_parts[1] if len(image_parts) > 1 else "latest"
