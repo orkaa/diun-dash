@@ -17,6 +17,30 @@ class WebhookData(BaseModel):
     platform: Optional[str] = None
     metadata: Optional[dict] = None
 
+    def to_update_data(self) -> "DiunUpdateData":
+        """Parse webhook payload into a DiunUpdateData ready for the database."""
+        # Strip digest suffix (e.g. "image:tag@sha256:abc..." -> "image:tag")
+        image_full = self.image.split('@')[0]
+        image_parts = image_full.rsplit(':', 1)
+        image_name = image_parts[0] if len(image_parts) > 1 else image_full
+        image_tag = image_parts[1] if len(image_parts) > 1 else "latest"
+
+        try:
+            image_created_at = datetime.fromisoformat(self.created.replace('Z', '+00:00')).replace(tzinfo=None)
+        except (ValueError, AttributeError):
+            image_created_at = None
+
+        return DiunUpdateData(
+            hostname=self.hostname,
+            status=self.status,
+            provider=self.provider,
+            image_name=image_name,
+            image_tag=image_tag,
+            digest=self.digest,
+            image_created_at=image_created_at,
+            hub_link=self.hub_link,
+        )
+
 class DiunUpdateData(BaseModel):
     """Database operation model with parsed image data"""
     hostname: str       # Required - server hostname

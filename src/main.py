@@ -2,7 +2,7 @@ from fastapi import FastAPI, Depends, HTTPException, Request, Header
 from fastapi.staticfiles import StaticFiles
 from sqlalchemy.orm import Session
 from .database import SessionLocal, engine, get_db, upsert_diun_update, delete_diun_update, delete_all_diun_updates, get_all_diun_updates
-from .models import WebhookData, DiunUpdateData
+from .models import WebhookData
 from fastapi.templating import Jinja2Templates
 from fastapi.responses import HTMLResponse
 import os
@@ -26,30 +26,6 @@ def verify_webhook_token(authorization: str = Header(None)):
         raise HTTPException(status_code=401, detail="Unauthorized")
     return authorization
 
-def parse_image_data(webhook_data: WebhookData) -> DiunUpdateData:
-    """Convert webhook data to database update data with parsed image"""
-    # Strip digest suffix (e.g. "image:tag@sha256:abc..." -> "image:tag")
-    image_full = webhook_data.image.split('@')[0]
-    image_parts = image_full.rsplit(':', 1)
-    image_name = image_parts[0] if len(image_parts) > 1 else image_full
-    image_tag = image_parts[1] if len(image_parts) > 1 else "latest"
-
-    try:
-        from datetime import datetime
-        image_created_at = datetime.fromisoformat(webhook_data.created.replace('Z', '+00:00')).replace(tzinfo=None)
-    except (ValueError, AttributeError):
-        image_created_at = None
-
-    return DiunUpdateData(
-        hostname=webhook_data.hostname,
-        status=webhook_data.status,
-        provider=webhook_data.provider,
-        image_name=image_name,
-        image_tag=image_tag,
-        digest=webhook_data.digest,
-        image_created_at=image_created_at,
-        hub_link=webhook_data.hub_link,
-    )
 
 # Function to run Alembic migrations
 def run_migrations():
@@ -98,7 +74,7 @@ async def receive_webhook(
         raise HTTPException(status_code=400, detail=f"Invalid webhook data: {e}")
     
     # Parse and convert to database format
-    update_data: DiunUpdateData = parse_image_data(webhook_data)
+    update_data: DiunUpdateData = webhook_data.to_update_data()
     
     # Process the validated and parsed data
     update = upsert_diun_update(db, update_data)

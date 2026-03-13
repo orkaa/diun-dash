@@ -1,7 +1,6 @@
 import pytest
 from datetime import datetime
 
-from src.main import parse_image_data
 from src.models import WebhookData, DiunUpdateData
 
 
@@ -20,7 +19,7 @@ class TestParseImageData:
             hub_link="https://hub.docker.com/_/nginx"
         )
         
-        result = parse_image_data(webhook_data)
+        result = webhook_data.to_update_data()
         
         assert isinstance(result, DiunUpdateData)
         assert result.image_name == "docker.io/nginx"
@@ -39,7 +38,7 @@ class TestParseImageData:
             created="2025-01-01T10:00:00Z"
         )
         
-        result = parse_image_data(webhook_data)
+        result = webhook_data.to_update_data()
         
         assert result.image_name == "nginx"
         assert result.image_tag == "latest"
@@ -56,7 +55,7 @@ class TestParseImageData:
             hub_link="https://registry.company.com/myapp"
         )
         
-        result = parse_image_data(webhook_data)
+        result = webhook_data.to_update_data()
         
         assert result.image_name == "registry.company.com/myapp"
         assert result.image_tag == "v1.2.3"
@@ -73,7 +72,7 @@ class TestParseImageData:
             created="2025-01-01T10:00:00Z"
         )
         
-        result = parse_image_data(webhook_data)
+        result = webhook_data.to_update_data()
         
         assert result.image_name == "localhost:5000/myimage"
         assert result.image_tag == "dev"
@@ -89,7 +88,7 @@ class TestParseImageData:
             created="2025-01-01T10:00:00Z"
         )
         
-        result = parse_image_data(webhook_data)
+        result = webhook_data.to_update_data()
         
         # Should split on the rightmost colon
         assert result.image_name == "registry.example.com:443/team/app"
@@ -99,7 +98,7 @@ class TestParseImageData:
         """Test that all webhook fields are preserved in the result."""
         webhook_data = WebhookData(**sample_diun_webhook)
         
-        result = parse_image_data(webhook_data)
+        result = webhook_data.to_update_data()
         
         # All original fields should be preserved
         assert result.hostname == webhook_data.hostname
@@ -125,7 +124,7 @@ class TestParseImageData:
             # hub_link is None (not provided)
         )
         
-        result = parse_image_data(webhook_data)
+        result = webhook_data.to_update_data()
         
         assert result.hub_link is None
         assert result.image_name == "nginx"
@@ -142,7 +141,7 @@ class TestParseImageData:
             created="2025-01-01T10:00:00Z"
         )
         
-        result = parse_image_data(webhook_data)
+        result = webhook_data.to_update_data()
         
         assert result.image_name == "myapp"
         assert result.image_tag == "sha-abc123def"
@@ -158,7 +157,7 @@ class TestParseImageData:
             created="2025-01-01T10:00:00Z"
         )
 
-        result = parse_image_data(webhook_data)
+        result = webhook_data.to_update_data()
 
         assert result.image_name == "docker.io/valkey/valkey"
         assert result.image_tag == "9"
@@ -174,7 +173,7 @@ class TestParseImageData:
             created="2025-01-01T10:00:00Z"
         )
         
-        result = parse_image_data(webhook_data)
+        result = webhook_data.to_update_data()
         
         assert result.image_name == "ubuntu"
         assert result.image_tag == "latest"
