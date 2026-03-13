@@ -31,6 +31,14 @@ def upgrade() -> None:
         SET image_created_at = REPLACE(REPLACE(image_created_at, 'T', ' '), 'Z', '')
         WHERE image_created_at IS NOT NULL
     """))
+    # Null out any values that were previously corrupted to a bare 4-digit year
+    # by an earlier version of this migration that mistakenly used batch_alter_table.
+    conn.execute(sa.text("""
+        UPDATE diun_updates
+        SET image_created_at = NULL
+        WHERE image_created_at IS NOT NULL
+          AND CAST(image_created_at AS TEXT) GLOB '[0-9][0-9][0-9][0-9]'
+    """))
 
 
 def downgrade() -> None:
