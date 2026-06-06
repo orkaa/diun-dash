@@ -50,28 +50,32 @@ Before you begin, ensure you have the following installed:
 
 ### Installation
 
-#### Option 1: Docker Deployment (Recommended)
+#### Option 1: Docker Hub (Recommended)
 
-1.  Clone this repository:
+Create a `docker-compose.yml`:
 
-    ```bash
-    git clone https://github.com/your-repo/diun-dash.git
-    cd diun-dash
+1. Create a `.env` file:
+
     ```
-
-2.  Copy the example environment file and configure your webhook token:
-
-    ```bash
-    cp .env.example .env
-    ```
-    
-    Edit `.env` and set a secure webhook token:
-    ```bash
     DIUN_WEBHOOK_TOKEN=your_secret_token_here
-    DATA_PATH=./data
+    DATA_PATH=/data
     ```
 
-3.  Start the application using Docker Compose:
+2. Create a `docker-compose.yml`:
+
+    ```yaml
+    services:
+      diun-dash:
+        image: orkaa/diun-dash:latest
+        ports:
+          - "8554:8554"
+        env_file: .env
+        volumes:
+          - ./data:/data
+        restart: unless-stopped
+    ```
+
+3. Start the application:
 
     ```bash
     docker-compose up -d
@@ -254,5 +258,4 @@ All three will be tracked separately, allowing you to see which servers have whi
 *   **Containerization**: Docker & Docker Compose
 
 ## TODOs
-- Github action to build and push the image to docker hub.
 - Auth is currently only implemented on the webhook endpoint because Diun uses it by default. Do we also want it on other endpoints?
