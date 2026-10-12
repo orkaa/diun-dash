@@ -1,8 +1,8 @@
 from fastapi import FastAPI, Depends, HTTPException, Request, Header
 from fastapi.staticfiles import StaticFiles
 from sqlalchemy.orm import Session
-from .database import SessionLocal, engine, get_db, upsert_diun_update, delete_diun_update, delete_all_diun_updates, get_all_diun_updates
-from .models import WebhookData
+from .database import SessionLocal, engine, get_db, upsert_diun_update, delete_diun_update, delete_all_diun_updates, get_all_diun_updates, delete_updates_by_image_name
+from .models import WebhookData, DiunUpdateData
 from fastapi.templating import Jinja2Templates
 from fastapi.responses import HTMLResponse
 import os
@@ -96,6 +96,11 @@ async def delete_all_updates(db: Session = Depends(get_db)):
 @app.get("/health")
 async def health():
     return {"status": "ok"}
+
+@app.delete("/updates/by-image-name/{image_name}")
+async def delete_updates_by_image_name_endpoint(image_name: str, db: Session = Depends(get_db)):
+    deleted_count = delete_updates_by_image_name(db, image_name)
+    return {"message": f"All updates for image name '{image_name}' fixed ({deleted_count} entries removed)"}
 
 @app.get("/", response_class=HTMLResponse)
 async def read_root(request: Request, db: Session = Depends(get_db)):
