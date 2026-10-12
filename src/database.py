@@ -107,6 +107,22 @@ def get_all_diun_updates(db: Session) -> list[DiunUpdate]:
     """
     return db.query(DiunUpdate).order_by(DiunUpdate.created_at.desc()).all()
 
+def delete_updates_by_image_name(db: Session, image_name: str) -> int:
+    """
+    Delete all DIUN update records with a specific image name.
+    
+    Args:
+        db: Database session
+        image_name: Image name to delete updates for
+        
+    Returns:
+        Number of records deleted
+    """
+    count = db.query(DiunUpdate).filter(DiunUpdate.image_name == image_name).count()
+    db.query(DiunUpdate).filter(DiunUpdate.image_name == image_name).delete()
+    db.commit()
+    return count
+
 def get_db():
     db = SessionLocal()
     try:

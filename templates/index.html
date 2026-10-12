@@ -16,7 +16,7 @@
             margin-top: 20px;
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
             border-radius: 8px;
-            overflow: hidden;
+            overflow: visible;
         }
         th, td {
             padding: 12px 15px;
@@ -67,11 +67,63 @@
             align-items: center;
             margin-bottom: 20px;
         }
+        .filter-input {
+            width: 100%;
+            padding: 8px 10px;
+            margin-bottom: 6px;
+            background-color: #3a3a3a;
+            color: #e0e0e0;
+            border: 1px solid #555555;
+            border-radius: 4px;
+            font-size: 14px;
+            box-sizing: border-box;
+        }
+        .filter-input:focus {
+            outline: none;
+            border-color: #61dafb;
+            background-color: #404040;
+        }
+        .filter-input::placeholder {
+            color: #aaaaaa;
+        }
+        thead tr:first-child {
+            background-color: #252525;
+        }
+        thead tr:first-child th {
+            padding-top: 10px;
+            padding-bottom: 6px;
+        }
+        .sort-link {
+            cursor: pointer;
+            user-select: none;
+            margin-left: 4px;
+            opacity: 0.4;
+            font-size: 12px;
+        }
+        .sort-link:hover {
+            opacity: 1;
+        }
+        .sort-link.active {
+            opacity: 1;
+            font-weight: bold;
+        }
+        td:last-child {
+            white-space: nowrap;
+        }
+        td:last-child button {
+            display: inline-block;
+            vertical-align: middle;
+        }
     </style>
 </head>
 <body class="dark-mode">
     <div class="header-controls">
-        <h1>Diun Dash</h1>
+        <div>
+            <h1 style="display: inline;">Diun Dash</h1>
+            <span style="margin-left: 20px; font-size: 14px; color: #aaaaaa;">
+                Actions: <strong>F</strong>=Fix row, <strong>N</strong>=Fix all same Image Name
+            </span>
+        </div>
         {% if updates %}
         <button class="fix-all-button" onclick="fixAll()">Fix All</button>
         {% endif %}
@@ -79,14 +131,25 @@
     <table>
         <thead>
             <tr>
-                <th>Hostname</th>
-                <th>Image Name</th>
-                <th>Image Tag</th>
-                <th>Digest</th>
-                <th>Status</th>
-                <th>Provider</th>
-                <th>Hub Link</th>
-                <th>Created At</th>
+                <th><input type="text" class="filter-input" data-column="0" placeholder="Filter Hostname..."></th>
+                <th><input type="text" class="filter-input" data-column="1" placeholder="Filter Image Name..."></th>
+                <th><input type="text" class="filter-input" data-column="2" placeholder="Filter Image Tag..."></th>
+                <th><input type="text" class="filter-input" data-column="3" placeholder="Filter Digest..."></th>
+                <th><input type="text" class="filter-input" data-column="4" placeholder="Filter Status..."></th>
+                <th><input type="text" class="filter-input" data-column="5" placeholder="Filter Provider..."></th>
+                <th><input type="text" class="filter-input" data-column="6" placeholder="Filter Hub Link..."></th>
+                <th><input type="text" class="filter-input" data-column="7" placeholder="Filter Created At..."></th>
+                <th></th>
+            </tr>
+            <tr>
+                <th>Hostname <span class="sort-link" data-column="0" data-type="string">▲</span><span class="sort-link" data-column="0" data-type="string">▼</span></th>
+                <th>Image Name <span class="sort-link" data-column="1" data-type="string">▲</span><span class="sort-link" data-column="1" data-type="string">▼</span></th>
+                <th>Image Tag <span class="sort-link" data-column="2" data-type="string">▲</span><span class="sort-link" data-column="2" data-type="string">▼</span></th>
+                <th>Digest <span class="sort-link" data-column="3" data-type="string">▲</span><span class="sort-link" data-column="3" data-type="string">▼</span></th>
+                <th>Status <span class="sort-link" data-column="4" data-type="string">▲</span><span class="sort-link" data-column="4" data-type="string">▼</span></th>
+                <th>Provider <span class="sort-link" data-column="5" data-type="string">▲</span><span class="sort-link" data-column="5" data-type="string">▼</span></th>
+                <th>Hub Link <span class="sort-link" data-column="6" data-type="string">▲</span><span class="sort-link" data-column="6" data-type="string">▼</span></th>
+                <th>Created At <span class="sort-link" data-column="7" data-type="string">▲</span><span class="sort-link" data-column="7" data-type="string">▼</span></th>
                 <th>Actions</th>
             </tr>
         </thead>
@@ -101,7 +164,10 @@
                 <td>{{ update.provider }}</td>
                 <td><a href="{{ update.hub_link }}" target="_blank">{{ update.hub_link }}</a></td>
                 <td>{{ update.created_at }}</td>
-                <td><button onclick="markAsFixed({{ update.id }})">Fix</button></td>
+                <td>
+                    <button onclick="markAsFixed({{ update.id }})" style="width: 32px; padding: 6px 0; font-weight: bold;">F</button>
+                    <button onclick="fixNames('{{ update.image_name }}')" style="margin-left: 4px; width: 32px; padding: 6px 0; font-weight: bold;">N</button>
+                </td>
             </tr>
             {% endfor %}
         </tbody>
@@ -131,6 +197,94 @@
                 location.reload();
             } else {
                 alert('Failed to fix all entries.');
+            }
+        }
+
+        // Column filter functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const filterInputs = document.querySelectorAll('.filter-input');
+            const table = document.querySelector('table');
+            const tbody = table.querySelector('tbody');
+            const rows = tbody.querySelectorAll('tr');
+
+            filterInputs.forEach(input => {
+                input.addEventListener('input', function() {
+                    const columnIndex = parseInt(this.getAttribute('data-column'));
+                    const filterValue = this.value.toLowerCase();
+
+                    rows.forEach(row => {
+                        const cell = row.cells[columnIndex];
+                        if (cell) {
+                            const cellText = cell.textContent.toLowerCase();
+                            if (cellText.includes(filterValue)) {
+                                row.style.display = '';
+                            } else {
+                                row.style.display = 'none';
+                            }
+                        }
+                    });
+                });
+            });
+
+            // Sorting functionality
+            const sortLinks = document.querySelectorAll('.sort-link');
+            let currentSort = { column: null, direction: 'asc' };
+
+            sortLinks.forEach(link => {
+                link.addEventListener('click', function() {
+                    const columnIndex = parseInt(this.getAttribute('data-column'));
+                    const type = this.getAttribute('data-type');
+                    const isAsc = this.textContent === '▲';
+
+                    // Toggle direction if same column
+                    if (currentSort.column === columnIndex) {
+                        currentSort.direction = currentSort.direction === 'asc' ? 'desc' : 'asc';
+                    } else {
+                        currentSort.column = columnIndex;
+                        currentSort.direction = 'asc';
+                    }
+
+                    // Update active state
+                    sortLinks.forEach(l => l.classList.remove('active'));
+                    this.classList.add('active');
+                    const oppositeLink = this.parentElement.querySelector(`.sort-link[data-column="${columnIndex}"]:not(.active)`);
+                    if (oppositeLink && currentSort.direction === 'desc') {
+                        oppositeLink.classList.add('active');
+                    }
+
+                    // Sort rows
+                    const sortedRows = Array.from(rows).sort((a, b) => {
+                        let aVal = a.cells[columnIndex].textContent.trim();
+                        let bVal = b.cells[columnIndex].textContent.trim();
+
+                        if (type === 'number') {
+                            aVal = parseFloat(aVal) || 0;
+                            bVal = parseFloat(bVal) || 0;
+                        }
+
+                        if (aVal < bVal) return currentSort.direction === 'asc' ? -1 : 1;
+                        if (aVal > bVal) return currentSort.direction === 'asc' ? 1 : -1;
+                        return 0;
+                    });
+
+                    // Re-append sorted rows
+                    sortedRows.forEach(row => tbody.appendChild(row));
+                });
+            });
+        });
+
+        async function fixNames(imageName) {
+            if (!confirm(`Are you sure you want to fix all entries with image name "${imageName}"? This will remove all current updates with this image name from the dashboard.`)) {
+                return;
+            }
+            
+            const response = await fetch(`/updates/by-image-name/${encodeURIComponent(imageName)}`, {
+                method: 'DELETE',
+            });
+            if (response.ok) {
+                location.reload();
+            } else {
+                alert('Failed to fix entries by image name.');
             }
         }
     </script>
