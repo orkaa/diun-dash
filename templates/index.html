@@ -67,6 +67,42 @@
             align-items: center;
             margin-bottom: 20px;
         }
+        .filter-input {
+            width: 100%;
+            padding: 8px 10px;
+            background-color: #3a3a3a;
+            color: #e0e0e0;
+            border: 1px solid #555555;
+            border-radius: 4px;
+            font-size: 14px;
+            box-sizing: border-box;
+        }
+        .filter-input:focus {
+            outline: none;
+            border-color: #61dafb;
+        }
+        .filter-input::placeholder {
+            color: #aaaaaa;
+        }
+        th.sortable {
+            cursor: pointer;
+            user-select: none;
+            white-space: nowrap;
+        }
+        th.sortable::after {
+            content: "\2195";
+            margin-left: 6px;
+            opacity: 0.35;
+            font-size: 12px;
+        }
+        th.sortable[aria-sort="ascending"]::after {
+            content: "\25B2";
+            opacity: 1;
+        }
+        th.sortable[aria-sort="descending"]::after {
+            content: "\25BC";
+            opacity: 1;
+        }
     </style>
 </head>
 <body class="dark-mode">
@@ -78,15 +114,26 @@
     </div>
     <table>
         <thead>
+            <tr class="filter-row">
+                <th><input type="text" class="filter-input" data-column="0" placeholder="Filter Hostname" aria-label="Filter Hostname"></th>
+                <th><input type="text" class="filter-input" data-column="1" placeholder="Filter Image Name" aria-label="Filter Image Name"></th>
+                <th><input type="text" class="filter-input" data-column="2" placeholder="Filter Image Tag" aria-label="Filter Image Tag"></th>
+                <th><input type="text" class="filter-input" data-column="3" placeholder="Filter Digest" aria-label="Filter Digest"></th>
+                <th><input type="text" class="filter-input" data-column="4" placeholder="Filter Status" aria-label="Filter Status"></th>
+                <th><input type="text" class="filter-input" data-column="5" placeholder="Filter Provider" aria-label="Filter Provider"></th>
+                <th><input type="text" class="filter-input" data-column="6" placeholder="Filter Hub Link" aria-label="Filter Hub Link"></th>
+                <th><input type="text" class="filter-input" data-column="7" placeholder="Filter Created At" aria-label="Filter Created At"></th>
+                <th></th>
+            </tr>
             <tr>
-                <th>Hostname</th>
-                <th>Image Name</th>
-                <th>Image Tag</th>
-                <th>Digest</th>
-                <th>Status</th>
-                <th>Provider</th>
-                <th>Hub Link</th>
-                <th>Created At</th>
+                <th class="sortable" data-column="0">Hostname</th>
+                <th class="sortable" data-column="1">Image Name</th>
+                <th class="sortable" data-column="2">Image Tag</th>
+                <th class="sortable" data-column="3">Digest</th>
+                <th class="sortable" data-column="4">Status</th>
+                <th class="sortable" data-column="5">Provider</th>
+                <th class="sortable" data-column="6">Hub Link</th>
+                <th class="sortable" data-column="7">Created At</th>
                 <th>Actions</th>
             </tr>
         </thead>
