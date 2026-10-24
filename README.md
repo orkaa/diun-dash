@@ -130,6 +130,17 @@ notif:
 - **`endpoint`**: Must match where you run your diun-dash.
 - **`authorization`**: Must exactly match the `DIUN_WEBHOOK_TOKEN` value you set in your `.env` file
 
+**Give the Diun container a fixed hostname.** The server name shown in the dashboard is the hostname of the machine or container Diun runs on. In Docker, that is a random ID (like `d2219b854598`) unless you set one, and it changes every time the Diun container is recreated. Each new ID would then show up as a separate server with its own stale rows. Set a stable name in your Diun compose file:
+
+```yaml
+services:
+  diun:
+    image: crazymax/diun:latest
+    hostname: my-server
+```
+
+See the [Diun FAQ](https://crazymax.dev/diun/faq/#customize-the-hostname) for details.
+
 For additional information, see the [Diun webhook documentation](https://crazymax.dev/diun/notif/webhook/).
 
 ## Accessing the Dashboard
