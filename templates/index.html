@@ -2,6 +2,13 @@
 <html>
 <head>
     <title>Diun Dash</title>
+    <meta name="robots" content="noindex, nofollow, noarchive, nosnippet, noimageindex">
+    <meta name="googlebot" content="noindex, nofollow, noarchive, nosnippet, noimageindex">
+    <meta name="viewport" content="width=device-width, shrink-to-fit=0,initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=0, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="theme-color" content="#000000">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
     <link rel="icon" type="image/svg+xml" href="/static/favicon.svg">
     <style>
         body {
@@ -103,6 +110,119 @@
             content: "\25BC";
             opacity: 1;
         }
+
+        @media (pointer: coarse) { html { touch-action: manipulation; } }
+        .mobile-controls, .mobile-card-header { display: none; }
+        @media (max-width: 767px) {
+            body { margin: 12px; }
+            .header-controls { gap: 12px; }
+            .header-controls h1 { font-size: 24px; }
+            .fix-all-button { margin-bottom: 0; flex-shrink: 0; }
+            .mobile-controls { display: grid; gap: 12px; margin: 16px 0 4px; }
+            .mobile-control-group { display: grid; gap: 6px; }
+            .mobile-control-group label { color: #f0f0f0; font-size: 13px; font-weight: 600; }
+            .mobile-control-row { display: flex; gap: 8px; min-width: 0; }
+            .mobile-controls select, .mobile-controls input {
+                min-width: 0; padding: 10px; background: #3a3a3a; color: #e0e0e0;
+                border: 1px solid #555; border-radius: 5px; font-size: 16px;
+                box-sizing: border-box;
+            }
+            .mobile-controls select { flex: 0 0 42%; }
+            .mobile-controls input { flex: 1 1 0; width: 0; }
+            .mobile-control-row.sort-row select { flex: 1; }
+            .mobile-control-row.sort-row button { flex: 0 0 auto; white-space: nowrap; border: 1px solid #555; }
+            .mobile-controls select:focus, .mobile-controls input:focus { outline: none; border-color: #61dafb; }
+            table, thead, tbody, tr, th, td { display: block; }
+            table { box-shadow: none; overflow: visible; margin-top: 14px; }
+            thead { display: none; }
+            tbody tr[hidden] { display: none; }
+            tbody tr {
+                margin-bottom: 12px;
+                background-color: #222222;
+                border: 1px solid #454545;
+                border-left: 4px solid #555555;
+                border-radius: 8px;
+                box-shadow: 0 2px 10px rgba(0, 0, 0, 0.35);
+                overflow: hidden;
+            }
+            tbody tr[data-status="new"] { border-left-color: #38bdf8; border-color: #344453; border-left-color: #38bdf8; }
+            tbody tr[data-status="update"] { border-left-color: #e4a64c; border-color: #4a4134; border-left-color: #e4a64c; }
+            tbody td:nth-child(1) .mobile-card-header {
+                display: flex; align-items: flex-start; justify-content: space-between;
+                gap: 12px; min-width: 0; padding: 14px 12px 12px;
+            }
+            .mobile-card-title { flex: 1 1 0; min-width: 0; }
+            .mobile-card-name {
+                color: #ffffff; font-size: 15px; line-height: 1.4;
+                font-weight: 600; overflow-wrap: anywhere; word-break: normal;
+            }
+            .mobile-card-host {
+                color: #9aa5b2; font-size: 12px; margin-top: 5px;
+                line-height: 1.4; overflow-wrap: anywhere;
+            }
+            .mobile-status {
+                flex: 0 0 auto; padding: 4px 9px; border-radius: 999px;
+                font-size: 11px; font-weight: 700; line-height: 1.2;
+                background: #30363c; border: 1px solid #555; color: #e0e0e0;
+            }
+            tbody tr[data-status="new"] .mobile-status {
+                color: #67d2ff; border-color: #285c78; background: #123244;
+            }
+            tbody tr[data-status="update"] .mobile-status {
+                color: #f6be67; border-color: #78562c; background: #3e2c17;
+            }
+            tbody td:nth-child(1) {
+                display: block; padding: 0; border-bottom: 0;
+            }
+            tbody tr td:nth-child(1) {
+                background-color: #2a3037;
+                border-bottom: 1px solid #414a55;
+            }
+            tbody tr[data-status="new"] td:nth-child(1) {
+                background-color: #19323f;
+                border-bottom-color: #285c78;
+            }
+            tbody tr[data-status="update"] td:nth-child(1) {
+                background-color: #352b20;
+                border-bottom-color: #78562c;
+            }
+            tbody td:nth-child(1)::before, tbody td:nth-child(1) .desktop-hostname { display: none; }
+            tbody td:nth-child(2), tbody td:nth-child(5) { display: none; }
+            tbody td:nth-child(3) { border-top: 1px solid #35424e; }
+            tbody td {
+                display: block;
+                padding: 11px 12px;
+                border-bottom: 1px solid #303943;
+                color: #f0f4f8;
+                line-height: 1.5;
+                overflow-wrap: anywhere;
+                word-break: normal;
+            }
+            tbody td::before {
+                display: block;
+                margin-bottom: 4px;
+                color: #95a3b4;
+                font-size: 12px;
+                font-weight: 600;
+                line-height: 1.35;
+            }
+            tbody td:nth-child(3) { border-top: 1px solid #35424e; }
+            tbody td:nth-child(9) { border-top: 1px solid #35424e; }
+            tbody td a { overflow-wrap: anywhere; word-break: normal; }
+            tbody tr:hover { background-color: #2c2c2c; }
+            tbody td:nth-child(1)::before { content: "Hostname"; }
+            tbody td:nth-child(2)::before { content: "Image Name"; }
+            tbody td:nth-child(3)::before { content: "Image Tag"; }
+            tbody td:nth-child(4)::before { content: "Digest"; }
+            tbody td:nth-child(5)::before { content: "Status"; }
+            tbody td:nth-child(6)::before { content: "Provider"; }
+            tbody td:nth-child(7)::before { content: "Hub Link"; }
+            tbody td:nth-child(8)::before { content: "Created At"; }
+            tbody td:nth-child(9)::before { content: "Actions"; }
+            tbody td:last-child { border-bottom: 0; }
+            tbody td a { min-width: 0; overflow-wrap: anywhere; }
+            tbody td button { display: block; margin-left: auto; }
+        }
     </style>
 </head>
 <body class="dark-mode">
@@ -111,6 +231,40 @@
         {% if updates %}
         <button id="fix-all-btn" class="fix-all-button">Fix All</button>
         {% endif %}
+    </div>
+    <div class="mobile-controls" aria-label="Filtres et tri">
+        <div class="mobile-control-group">
+            <label for="mobile-filter-field">Filter</label>
+            <div class="mobile-control-row">
+                <select id="mobile-filter-field" aria-label="Filter column">
+                    <option value="1">Image Name</option>
+                    <option value="0">Hostname</option>
+                    <option value="2">Image Tag</option>
+                    <option value="3">Digest</option>
+                    <option value="4">Status</option>
+                    <option value="5">Provider</option>
+                    <option value="6">Hub Link</option>
+                    <option value="7">Created At</option>
+                </select>
+                <input id="mobile-filter-query" type="search" placeholder="Search…" aria-label="Filter value">
+            </div>
+        </div>
+        <div class="mobile-control-group">
+            <label for="mobile-sort-field">Sort by</label>
+            <div class="mobile-control-row sort-row">
+                <select id="mobile-sort-field" aria-label="Sort column">
+                    <option value="7">Created At</option>
+                    <option value="1">Image Name</option>
+                    <option value="0">Hostname</option>
+                    <option value="2">Image Tag</option>
+                    <option value="3">Digest</option>
+                    <option value="4">Status</option>
+                    <option value="5">Provider</option>
+                    <option value="6">Hub Link</option>
+                </select>
+                <button type="button" id="mobile-sort-direction" aria-label="Sort descending" aria-pressed="true">↓ Desc</button>
+            </div>
+        </div>
     </div>
     <table>
         <thead>
@@ -139,8 +293,16 @@
         </thead>
         <tbody>
             {% for update in updates %}
-            <tr>
-                <td>{{ update.hostname }}</td>
+            <tr data-status="{{ update.status|lower }}">
+                <td><span class="desktop-hostname">{{ update.hostname }}</span>
+                    <div class="mobile-card-header">
+                        <div class="mobile-card-title">
+                            <div class="mobile-card-name">{{ update.image_name }}</div>
+                            <div class="mobile-card-host">{{ update.hostname }}</div>
+                        </div>
+                        <span class="mobile-status">{{ update.status }}</span>
+                    </div>
+                </td>
                 <td>{{ update.image_name }}</td>
                 <td>{{ update.image_tag }}</td>
                 <td>{{ update.digest.split(':', 1)[1][:12] if update.digest and ':' in update.digest else '' }}</td>
